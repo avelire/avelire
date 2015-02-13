@@ -44,6 +44,10 @@ ul.plain {
     list-style-type: none;
 }
 
+li.space {
+	margin-bottom: 10px;
+}
+
 #main {
 	float:right;
 	width:480px;
