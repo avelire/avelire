@@ -1,0 +1,118 @@
+body, html {
+margin:0;
+padding:0;
+color:#000;
+background:#EDEAE3;
+}
+
+#wrap {
+width:750px;
+margin:0 auto;
+/* background:#D4CBC4; */
+}
+
+#header {
+	padding:40px 40px;
+/* background:#D4CBC4; */
+}
+
+h2, h3 {
+	margin:0;
+	font-family: Helvetica, Arial;
+	font-weight: lighter;
+}
+
+h1 {
+	margin:0;
+	font-family: Economica;
+	font-size: 50px;
+}
+
+a:link {
+	color: black;
+	font-family: Helvetica, Arial;
+	text-decoration: none;
+}
+
+a:visited {
+	color: black;
+    text-decoration: none;
+}
+
+
+ul.plain {
+    list-style-type: none;
+}
+
+#main {
+	float:right;
+	width:480px;
+	padding:10px;
+/* background:#D4CBC4; */
+}
+
+#sidebar {
+	float:left;
+	width:250px;
+	padding:0px;
+} 
+
+#sideskills {
+	column-count: 3;
+}
+
+
+
+img.display {
+	display: block;
+	border: 5px solid;
+	max-width: 480px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+p.maintext {
+	font-family: Helvetica, Arial;
+	font-size: 12 px;
+	font-weight: lighter;
+	line-height: 120%;
+
+}
+
+table {
+	margin:0;
+	font-family: Helvetica, Arial;
+    border: none;
+    width: 100%;
+}
+
+th, td {
+    overflow: hidden;
+    padding: 10px;
+}
+
+.smallcaps {
+	font-size: 14px;
+}
+
+.title {
+	font-weight: bold;
+}
+
+.degree {
+	color: #4fad8e;
+}
+
+.school {
+	font-style: italic;
+}
+
+#resumetitle {
+	color: #4fad8e;
+	font-family: Economica;
+	font-weight: lighter;
+}
+
+
+
+
