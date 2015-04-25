@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Security Assessment of the Maurauder's Map</title>
+	<!-- Bootstrap Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<!-- Bootstrap Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+	<!-- Bootstrap Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+<h1>Security Assessment of the Maurauder's Map</h1>
+<h3>COMP 20 Assignment 4</h3>
+<p>Prepared by Valerie Ng, April 24th, 2015</p>
+
+<h3>Introduction</h3>
+<p>This report is an analysis of the security of the Maurauder's Map, a web application developed by <a href="cartercasey.github.io">Carter Casey</a> for Assignments 2 and 3 of the Tufts University COMP 20: Web Programming course, Spring 2015. The Maurauder's Map retrieves the user's current location and sends this information to a server, also developed by Carter Casey, and proceeds to <a href="http://tuftsdev.github.io/comp20-ccasey/mmap/">display the location of its users on Google Maps</a>, as well as list the latest check-ins by all users in its database <a href="http://mmap-db.herokuapp.com/">here</a>. As security and authentication were not only unrequired of Assignments 2 and 3, but also encouraged to be left out for the time being, the Maurauder's Map is vulnerable to malicious attacks and privacy issues.</p>
+
+<h3>Methodology</h3>
+<p><a href="https://www.owasp.org/index.php/Top_10_2013-Top_10">The OWASP Top 10</a> was used as a reference to check for security issues. Testing was then performed using the <a href="http://passportjs.org/">Postman</a> add-on on Chrome, and the URL was manipulated to assess further vulnerabilities. The code was then reviewed in order to provide possible solutions.</p>
+
+<h3>Abstract of Findings</h3>
+<p>The majority of vulnerabilities in this application stem from trusting user input. Unfortunately, not only is user input not usually inputted in the correct format, but moreover there is no protection from malicious users who wish to create fraudulent content, nor from attackers who wish to deface the website or crash the server. Setting validation checks and authentication measures will help increase security and privacy of the Maurauder's Map.</p>
+
+<h3>Issues Found</h3>
+<ol>
+<li><p><strong>Sensitive Data Exposure</strong></p>
+<ul>
+	<li><strong>Issue:</strong> Although there is no exposure of passwords or contact information in the code, the purpose of the Maurauder's Map itself is to show the location of those stored in the database. As such, anyone who knows or stumbles upon the Maurauder's Map URL is able to view the locations of its users, arguably very sensitive data.</li>
+
+	<li><strong>Location:</strong> <a href="http://tuftsdev.github.io/comp20-ccasey/mmap/">The index page of Assignment 2</a></li>
+
+	<li><strong>Severity of Issue:</strong> Medium; it is a privacy risk that the locations of all users are exposed, but one has to know the URL in order to access data. Unless one knows where to look, the site is hard to find.</li>
+
+	<li><strong>Proof of vulnerability:</strong> I have the URL and I was able to access the site and see the locations of all users with no problems. (Fig. 1)</li>
+	<br />
+
+	<img src="map.png" alt="map" width="500" /><p>Fig. 1</p>
+
+	<li><strong>Resolution:</strong> Implement an authentication system so that visitors to the site will have to log in before they are able to view the map. This can be done with Passport (http://passportjs.org/), an authentication middleware for Node.js.</li>
+</ul>
+</li>
+
+
+<li><p><strong>Injection of False Data/Trusting User Input</strong></p>
+
+<ul>
+	<li><strong>Issue:</strong> It is possible to inject false data into the database using simple client-side applications such as <a href="http://passportjs.org/">Postman</a>. Although the server code asserts that the values for the login, lat, and lng fields are defined, it allows any value to be inserted.</li>
+
+	<li><strong>Location:</strong> <code>request.open("POST", "https://mmap-db.herokuapp.com/sendLocation");</code></li>
+
+	<li><strong>Severity of the Issue:</strong> High; it is possible to falsify information.</li>
+
+	<li><strong>Proof of vulnerability:</strong> Using Postman, I was able to inject a document stating that my location was the Eiffel Tower (Fig. 2), as well as put the location of "Michael Jackson" as the Great Wall of China (lat: 40.6769, lng: 117.2319) (Fig. 3). Furthermore, I was able to put unrealistic input for each field, for example an entire Onion article as the value for the login (Fig. 4), and latitude and longitude coordinates that do not exist (e.g. "lat": -1203948506, "lng": 1029384857753) (Fig. 5).</li>
+
+	<img src="ave.png" alt="eiffel tower" width="500" /> <p>Fig. 2</p>
+	<img src="michaeljackson.png" alt="michael jackson" width="500" /> <p>Fig. 3</p>
+	<img src="onion.png" alt="onion article" width="500" /> <p>Fig. 4</p>
+	<img src="nonexistent.png" alt="false input" width="500" /> <p>Fig. 5</p>
+
+	<li><p><strong>Resolution:</strong> Write maximum and minimum length requirements for fields, as well as specify ranges for latitude and longitudes. For example, <code>login.maxLength=50</code> and adding if statements like <code>if (lat >= -90 && <=90)</code> and <code>if (lng >= -180 && <= 180)</code> to ensure the latitude and longitude ranges are appropriate.
+	<br />
+	     However, this does not resolve the issue false information that is within the specified ranges. In order to prevent users submitting any data for locations, it will be necessary to restructure the code so that it will not be possible for users to post data to /sendLocation. One possibility will be to prevent user input--login, latitude, and longitude information will be generated or extracted automatically--and place verification security measures on the /sendLocation site so that it only accepts data from verified sources. </p></li>
+</ul>
+</li>
+
+
+<li><p><strong>Cross-Site Scripting (XSS)</strong></p>
+<ul>
+	<li><strong>Issue:</strong> As there are no input validations, it is possible to inject script that will post unwanted content from another site, open alert boxes, and automatically redirect the user to other sites.</li>
+
+	<li><strong>Location:</strong> <code>request.open("POST", "https://mmap-db.herokuapp.com/sendLocation");</code></li>
+
+	<li><strong>Severity of Issue:</strong> High; not only is it possible to deface the website with inappropriate content, but an attacker could redirect the user to a website identical in appearance that could be used for phishing.</li>
+
+	<li><strong>Proof of vulnerability:</strong> Using Postman, I inserted an iframe that embeds a YouTube video on the http://mmap-db.herokuapp.com/ homepage (Fig. 6). I did not implement it, but Postman could also be used to redirect to a website using windows.location().</li>
+	<br />
+
+	<img src="youtube.png" alt="youtube embedded" width="500" /> <p>Fig. 6</p>
+
+	
+	<li><strong>Resolution:</strong> Escape user input before it enters the database. As special characters are needed to inject code input, these special characters can be converted to their HTML code equivalents, for example by:
+	<code>
+	sanitize:function(str) {
+    // return htmlentities(str,'ENT_QUOTES');
+    return $('<div></div>').text(str).html().replace(/"/gi,'&quot;').replace(/'/gi,'&apos;');   
+} </code></li>
+</ul>
+</li>
+</ol>
+
+<h3>Conclusion</h3>
+<p>The security issues listed above could easily render the Maurauder's Map unable to be used. The majority of the resolutions provided for each issue are not hard to implement and will make the Maurauder's Map a safer and more functional web application. The only more time-consuming and slightly pricey fix is the resolution for Issue 2, where code will need to be restructured in order to verify data input. This is, however, highly recommended to ensure the safe functioning of the web application.</p>
+</div>
+</body>
+</html>
